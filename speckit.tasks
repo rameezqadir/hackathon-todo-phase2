@@ -1,0 +1,185 @@
+# Phase II Implementation Tasks
+
+## Backend Tasks
+
+### T-001: Setup Backend Project Structure
+**Description:** Initialize FastAPI project with proper structure  
+**Estimate:** 15 minutes  
+**Preconditions:** Python 3.13 installed  
+**Output:** backend/ directory with all files
+
+```bash
+mkdir backend
+cd backend
+python3.13 -m venv venv
+source venv/bin/activate
+pip install fastapi uvicorn sqlmodel psycopg2-binary python-jose python-dotenv
+```
+
+### T-002: Create Database Models
+**Description:** Define SQLModel classes for Task  
+**Estimate:** 20 minutes  
+**Spec:** speckit.specify FR-1  
+**Output:** models.py with Task model
+
+### T-003: Setup Database Connection
+**Description:** Configure Neon PostgreSQL connection  
+**Estimate:** 15 minutes  
+**Output:** database.py with connection logic
+
+### T-004: Create Task CRUD Endpoints
+**Description:** Implement all REST API endpoints  
+**Estimate:** 45 minutes  
+**Spec:** speckit.specify FR-2  
+**Output:** routes/tasks.py with all endpoints
+
+### T-005: Implement JWT Authentication
+**Description:** Add JWT verification middleware  
+**Estimate:** 30 minutes  
+**Spec:** speckit.specify FR-3  
+**Output:** auth.py with JWT logic
+
+### T-006: Add User Isolation
+**Description:** Filter tasks by user_id from JWT  
+**Estimate:** 20 minutes  
+**Output:** Updated routes with user filtering
+
+### T-007: Configure CORS
+**Description:** Enable CORS for frontend  
+**Estimate:** 10 minutes  
+**Output:** CORS middleware in main.py
+
+## Frontend Tasks
+
+### T-008: Setup Next.js Project
+**Description:** Initialize Next.js with TypeScript and Tailwind  
+**Estimate:** 20 minutes  
+**Output:** frontend/ directory with Next.js app
+
+```bash
+npx create-next-app@latest frontend --typescript --tailwind --app --no-src-dir
+```
+
+### T-009: Setup Better Auth
+**Description:** Configure Better Auth for authentication  
+**Estimate:** 30 minutes  
+**Output:** lib/auth.ts with Better Auth config
+
+### T-010: Create API Client
+**Description:** Build API client library with JWT injection  
+**Estimate:** 30 minutes  
+**Spec:** speckit.plan §2.2  
+**Output:** lib/api.ts with all API functions
+
+### T-011: Build Auth Pages
+**Description:** Create sign in and sign up pages  
+**Estimate:** 40 minutes  
+**Output:** app/auth/signin and signup pages
+
+### T-012: Build Task List Component
+**Description:** Component to display all tasks  
+**Estimate:** 30 minutes  
+**Spec:** speckit.specify US-5  
+**Output:** components/TaskList.tsx
+
+### T-013: Build Task Form Component
+**Description:** Form to create/edit tasks  
+**Estimate:** 30 minutes  
+**Spec:** speckit.specify US-4, US-6  
+**Output:** components/TaskForm.tsx
+
+### T-014: Build Task Item Component
+**Description:** Single task with actions  
+**Estimate:** 25 minutes  
+**Output:** components/TaskItem.tsx
+
+### T-015: Build Tasks Page
+**Description:** Main tasks page integrating all components  
+**Estimate:** 30 minutes  
+**Output:** app/tasks/page.tsx
+
+### T-016: Implement Protected Routes
+**Description:** Redirect unauthenticated users to login  
+**Estimate:** 20 minutes  
+**Output:** Middleware for route protection
+
+### T-017: Add Loading States
+**Description:** Show spinners during API calls  
+**Estimate:** 15 minutes  
+**Output:** Loading components
+
+### T-018: Add Error Handling
+**Description:** Display error messages to users  
+**Estimate:** 20 minutes  
+**Output:** Error toast/alert components
+
+## Integration & Testing Tasks
+
+### T-019: Connect Frontend to Backend
+**Description:** Wire up all API calls  
+**Estimate:** 30 minutes  
+**Output:** Working full-stack app
+
+### T-020: Test All CRUD Operations
+**Description:** Manual testing of all features  
+**Estimate:** 30 minutes  
+**Output:** Test checklist completed
+
+### T-021: Test Multi-User Isolation
+**Description:** Verify users only see their own tasks  
+**Estimate:** 20 minutes  
+**Output:** User isolation confirmed
+
+### T-022: Responsive Design
+**Description:** Ensure mobile-friendly layout  
+**Estimate:** 30 minutes  
+**Output:** Responsive CSS/Tailwind
+
+## Deployment Tasks
+
+### T-023: Deploy Backend
+**Description:** Deploy to Railway or Render  
+**Estimate:** 30 minutes  
+**Output:** Live backend URL
+
+### T-024: Deploy Frontend
+**Description:** Deploy to Vercel  
+**Estimate:** 20 minutes  
+**Output:** Live frontend URL
+
+### T-025: Configure Environment Variables
+**Description:** Set all env vars in production  
+**Estimate:** 15 minutes  
+**Output:** Working production app
+
+### T-026: End-to-End Testing
+**Description:** Test deployed application  
+**Estimate:** 20 minutes  
+**Output:** Production verification
+
+### T-027: Documentation
+**Description:** Update README with deployment URLs  
+**Estimate:** 15 minutes  
+**Output:** Complete README.md
+
+## Total Estimated Time: ~10-12 hours
+```
+
+---
+
+## Part 3: Backend Implementation
+
+### Step 8: Create Backend Directory and Virtual Environment
+
+```bash
+cd ~/projects/hackathon-todo-phase2
+mkdir backend
+cd backend
+
+# Create virtual environment
+python3.13 -m venv venv
+
+# Activate virtual environment
+source venv/bin/activate
+
+# You should see (venv) in your prompt

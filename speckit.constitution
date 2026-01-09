@@ -1,0 +1,74 @@
+# Phase II Constitution - Full-Stack Todo Application
+
+## Core Principles
+
+### 1. Architecture
+- **Monorepo Structure**: Frontend and backend in single repository
+- **API-First Design**: Backend exposes RESTful APIs
+- **Separation of Concerns**: Clear boundaries between layers
+- **Stateless Backend**: No session storage, JWT-based auth
+
+### 2. Frontend Standards
+- Next.js 15+ with App Router
+- TypeScript for type safety
+- Server Components by default
+- Client Components only when needed (interactivity)
+- Tailwind CSS for styling
+- No inline styles
+
+### 3. Backend Standards
+- FastAPI for REST API
+- SQLModel for ORM
+- Async/await for all database operations
+- Pydantic for request/response validation
+- Proper HTTP status codes
+- CORS enabled for frontend
+
+### 4. Database
+- Neon Serverless PostgreSQL
+- SQLModel models with type hints
+- Proper foreign key relationships
+- Timestamps on all tables
+- Migration strategy for schema changes
+
+### 5. Authentication
+- Better Auth for user management
+- JWT tokens for API authentication
+- Secure password hashing
+- User isolation (users only see their data)
+
+### 6. API Design
+- RESTful conventions
+- Consistent error responses
+- JSON request/response bodies
+- `/api/` prefix for all endpoints
+- User ID in URL path for data isolation
+
+### 7. Security
+- Environment variables for secrets
+- No credentials in code
+- HTTPS in production
+- Input validation on all endpoints
+- SQL injection prevention via ORM
+
+### 8. Code Quality
+- Type hints everywhere
+- Docstrings for all functions
+- Error handling in all routes
+- Consistent naming conventions
+- DRY (Don't Repeat Yourself)
+
+## Technical Constraints
+
+- **Frontend**: Next.js 15+, TypeScript, Tailwind CSS
+- **Backend**: Python 3.13+, FastAPI, SQLModel
+- **Database**: PostgreSQL (Neon)
+- **Auth**: Better Auth with JWT
+- **Deployment**: Vercel (frontend), Railway/Render (backend)
+
+## Non-Goals for Phase II
+- Real-time updates (WebSockets)
+- File uploads
+- Email notifications
+- Advanced task features (priorities, tags)
+- Mobile app

@@ -1,0 +1,265 @@
+# Phase II Implementation Plan
+
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         Browser                              │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │              Next.js Frontend                        │  │
+│  │  - React Components                                  │  │
+│  │  - Better Auth (Client)                             │  │
+│  │  - API Client Library                               │  │
+│  └──────────────────┬───────────────────────────────────┘  │
+└─────────────────────┼───────────────────────────────────────┘
+                      │ HTTP + JWT
+                      ↓
+┌─────────────────────────────────────────────────────────────┐
+│              FastAPI Backend (Python)                        │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  JWT Verification Middleware                         │  │
+│  └──────────────────┬───────────────────────────────────┘  │
+│  ┌──────────────────┴───────────────────────────────────┐  │
+│  │  REST API Routes (/api/{user_id}/tasks/...)         │  │
+│  └──────────────────┬───────────────────────────────────┘  │
+│  ┌──────────────────┴───────────────────────────────────┐  │
+│  │  SQLModel ORM Layer                                  │  │
+│  └──────────────────┬───────────────────────────────────┘  │
+└─────────────────────┼───────────────────────────────────────┘
+                      │ SQL
+                      ↓
+┌─────────────────────────────────────────────────────────────┐
+│          Neon Serverless PostgreSQL                          │
+│  - users table (Better Auth)                                 │
+│  - tasks table                                               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Component Specifications
+
+### 1. Backend (FastAPI + SQLModel)
+
+**Directory Structure:**
+```
+backend/
+├── main.py              # FastAPI app entry point
+├── models.py            # SQLModel database models
+├── database.py          # Database connection
+├── auth.py              # JWT verification
+├── routes/
+│   └── tasks.py         # Task API endpoints
+├── requirements.txt     # Python dependencies
+└── .env                 # Environment variables
+```
+
+**Key Files:**
+
+**models.py** - Database Models
+- Task model with all fields
+- Relationships defined
+- Validation rules
+
+**database.py** - Database Connection
+- Neon connection string
+- Session management
+- Connection pooling
+
+**auth.py** - Authentication
+- JWT token verification
+- User ID extraction
+- Auth middleware
+
+**routes/tasks.py** - API Routes
+- All CRUD endpoints
+- User isolation logic
+- Error handling
+
+**main.py** - Application Setup
+- FastAPI instance
+- CORS configuration
+- Route registration
+- Database initialization
+
+### 2. Frontend (Next.js + Better Auth)
+
+**Directory Structure:**
+```
+frontend/
+├── app/
+│   ├── layout.tsx           # Root layout
+│   ├── page.tsx             # Landing page
+│   ├── auth/
+│   │   ├── signin/
+│   │   │   └── page.tsx     # Sign in page
+│   │   └── signup/
+│   │       └── page.tsx     # Sign up page
+│   └── tasks/
+│       └── page.tsx         # Tasks page (protected)
+├── components/
+│   ├── TaskList.tsx         # Task list component
+│   ├── TaskForm.tsx         # Add/edit task form
+│   ├── TaskItem.tsx         # Single task component
+│   └── Navbar.tsx           # Navigation bar
+├── lib/
+│   ├── api.ts               # API client functions
+│   ├── auth.ts              # Better Auth config
+│   └── types.ts             # TypeScript types
+├── public/
+├── package.json
+├── tsconfig.json
+├── tailwind.config.ts
+├── next.config.js
+└── .env.local
+```
+
+**Key Components:**
+
+**TaskList.tsx**
+- Fetches tasks from API
+- Maps tasks to TaskItem components
+- Handles loading and error states
+
+**TaskForm.tsx**
+- Controlled form inputs
+- Client-side validation
+- Submit handler calls API
+
+**TaskItem.tsx**
+- Displays single task
+- Complete/delete buttons
+- Inline editing
+
+**lib/api.ts**
+- API client with JWT injection
+- CRUD functions for tasks
+- Error handling
+
+### 3. Database (Neon PostgreSQL)
+
+**Connection:**
+- Serverless PostgreSQL
+- Connection string from Neon dashboard
+- SSL required
+
+**Tables:**
+- users (created by Better Auth)
+- tasks (created by us)
+
+## Implementation Order
+
+### Phase 1: Backend Foundation (Day 1-2)
+1. Setup FastAPI project
+2. Create database models
+3. Connect to Neon database
+4. Implement basic CRUD endpoints (without auth)
+
+### Phase 2: Authentication (Day 2-3)
+5. Setup Better Auth in frontend
+6. Implement JWT verification in backend
+7. Add user_id filtering to all endpoints
+8. Test authentication flow
+
+### Phase 3: Frontend Core (Day 3-4)
+9. Setup Next.js project
+10. Create layout and navigation
+11. Build task list component
+12. Build task form component
+13. Connect to backend API
+
+### Phase 4: Integration (Day 4-5)
+14. Connect frontend auth to backend
+15. Implement all CRUD operations
+16. Add loading states
+17. Add error handling
+
+### Phase 5: Polish & Deploy (Day 5-6)
+18. Styling with Tailwind
+19. Responsive design
+20. Deploy frontend to Vercel
+21. Deploy backend to Railway/Render
+22. End-to-end testing
+
+## API Flow Examples
+
+### Create Task Flow
+```
+1. User fills form in TaskForm.tsx
+2. Form validates input client-side
+3. Submit calls api.createTask()
+4. API client adds JWT to request header
+5. POST /api/{user_id}/tasks
+6. Backend verifies JWT
+7. Backend extracts user_id from token
+8. Backend validates user_id matches URL
+9. Backend creates task in database
+10. Backend returns task object
+11. Frontend updates task list
+12. Success message shown
+```
+
+### Authentication Flow
+```
+1. User submits login form
+2. Better Auth validates credentials
+3. Better Auth issues JWT token
+4. Token stored in browser
+5. User navigates to /tasks
+6. Page fetches GET /api/{user_id}/tasks
+7. API client includes JWT in header
+8. Backend verifies JWT signature
+9. Backend extracts user_id from JWT
+10. Backend queries tasks WHERE user_id = {user_id}
+11. Tasks returned to frontend
+12. Tasks displayed in TaskList
+```
+
+## Error Handling Strategy
+
+### Backend Errors
+- 400: Bad Request (validation failed)
+- 401: Unauthorized (no/invalid token)
+- 403: Forbidden (wrong user_id)
+- 404: Not Found (task doesn't exist)
+- 500: Internal Server Error (catch-all)
+
+### Frontend Errors
+- Network errors: Show "Connection failed"
+- 401 errors: Redirect to login
+- 404 errors: Show "Task not found"
+- Validation errors: Show inline messages
+
+## Testing Strategy
+
+### Backend Tests
+- Unit tests for models
+- Integration tests for routes
+- Test user isolation
+- Test auth middleware
+
+### Frontend Tests
+- Component rendering tests
+- API client tests
+- Auth flow tests
+
+### End-to-End Tests
+- User signup flow
+- Task CRUD operations
+- Multi-user data isolation
+
+## Deployment Architecture
+
+**Frontend (Vercel):**
+- Automatic deployments from git
+- Environment variables configured
+- Custom domain (optional)
+
+**Backend (Railway/Render):**
+- Python 3.13 runtime
+- Environment variables for secrets
+- Health check endpoint
+- Auto-deploy from git
+
+**Database (Neon):**
+- Connection string in backend env vars
+- Automatic backups
+- SSL connection required

@@ -1,0 +1,214 @@
+# Phase II Specification - Full-Stack Web Application
+
+## Project Overview
+A multi-user web-based todo application with authentication, persistent storage, and a modern UI.
+
+## User Stories
+
+### US-1: User Registration
+**As a** new user  
+**I want to** create an account  
+**So that** I can manage my personal todo list
+
+**Acceptance Criteria:**
+- User can sign up with email and password
+- Email must be valid format
+- Password must be at least 8 characters
+- Duplicate emails rejected
+- User automatically logged in after signup
+
+### US-2: User Login
+**As a** registered user  
+**I want to** log into my account  
+**So that** I can access my tasks
+
+**Acceptance Criteria:**
+- User can log in with email and password
+- Invalid credentials show error message
+- Successful login redirects to tasks page
+- JWT token stored for authentication
+
+### US-3: User Logout
+**As a** logged-in user  
+**I want to** log out  
+**So that** others cannot access my account
+
+**Acceptance Criteria:**
+- Logout button visible when logged in
+- Clicking logout clears session
+- User redirected to login page
+
+### US-4: Add Task (Web)
+**As a** logged-in user  
+**I want to** create tasks via web interface  
+**So that** I can track my todos
+
+**Acceptance Criteria:**
+- Task form has title and description fields
+- Title is required, description optional
+- Task saves to database
+- New task appears in list immediately
+- Task associated with current user
+
+### US-5: View Task List (Web)
+**As a** logged-in user  
+**I want to** see all my tasks  
+**So that** I know what needs to be done
+
+**Acceptance Criteria:**
+- All user's tasks displayed
+- Shows task ID, title, status
+- Incomplete tasks shown as circles (○)
+- Complete tasks shown as checkmarks (✓)
+- Only shows current user's tasks
+
+### US-6: Update Task (Web)
+**As a** logged-in user  
+**I want to** edit task details  
+**So that** I can correct or update information
+
+**Acceptance Criteria:**
+- User can click edit button on task
+- Form pre-filled with current values
+- Can update title and/or description
+- Changes saved to database
+- Updated task reflects changes immediately
+
+### US-7: Mark Complete (Web)
+**As a** logged-in user  
+**I want to** toggle task completion  
+**So that** I can track progress
+
+**Acceptance Criteria:**
+- Click on task or checkbox to toggle
+- Visual indicator changes (○ ↔ ✓)
+- Status saved to database
+- Change reflects immediately
+
+### US-8: Delete Task (Web)
+**As a** logged-in user  
+**I want to** remove tasks  
+**So that** I can clean up my list
+
+**Acceptance Criteria:**
+- Delete button on each task
+- Confirmation dialog shown
+- Task removed from database
+- Task disappears from list immediately
+
+## Functional Requirements
+
+### FR-1: Database Schema
+
+**users table** (managed by Better Auth)
+- id: UUID (primary key)
+- email: string (unique, not null)
+- name: string
+- created_at: timestamp
+
+**tasks table**
+- id: integer (primary key, auto-increment)
+- user_id: UUID (foreign key → users.id)
+- title: string (max 200 chars, not null)
+- description: text (nullable)
+- completed: boolean (default false)
+- created_at: timestamp (auto-generated)
+- updated_at: timestamp (auto-updated)
+
+**Indexes:**
+- tasks.user_id (for filtering by user)
+- tasks.completed (for status filtering)
+
+### FR-2: REST API Endpoints
+
+All endpoints require JWT authentication in header:  
+`Authorization: Bearer `
+
+**GET /api/{user_id}/tasks**
+- List all tasks for user
+- Query params: status (all|pending|completed)
+- Returns: Array of task objects
+
+**POST /api/{user_id}/tasks**
+- Create new task
+- Body: {title: string, description?: string}
+- Returns: Created task object
+
+**GET /api/{user_id}/tasks/{id}**
+- Get single task details
+- Returns: Task object or 404
+
+**PUT /api/{user_id}/tasks/{id}**
+- Update task
+- Body: {title?: string, description?: string}
+- Returns: Updated task object
+
+**DELETE /api/{user_id}/tasks/{id}**
+- Delete task
+- Returns: 204 No Content
+
+**PATCH /api/{user_id}/tasks/{id}/complete**
+- Toggle completion status
+- Returns: Updated task object
+
+### FR-3: Authentication Flow
+
+1. User signs up → Better Auth creates user
+2. Better Auth issues JWT token
+3. Frontend stores token
+4. Frontend includes token in API requests
+5. Backend verifies token
+6. Backend extracts user_id from token
+7. Backend filters data by user_id
+
+### FR-4: Frontend Pages
+
+- `/` - Landing page (public)
+- `/auth/signin` - Login page
+- `/auth/signup` - Registration page
+- `/tasks` - Main tasks page (protected)
+
+### FR-5: Input Validation
+
+**Frontend:**
+- Client-side validation for immediate feedback
+- Required field indicators
+- Character count for title/description
+
+**Backend:**
+- Server-side validation (never trust client)
+- Same rules as Phase I
+- Return 400 Bad Request for invalid input
+
+## Non-Functional Requirements
+
+### NFR-1: Performance
+- Page load < 2 seconds
+- API response < 500ms
+- Database queries optimized
+
+### NFR-2: Security
+- All passwords hashed
+- JWT tokens expire after 7 days
+- HTTPS in production
+- CORS properly configured
+- SQL injection prevention
+
+### NFR-3: Usability
+- Responsive design (mobile-friendly)
+- Loading indicators
+- Error messages user-friendly
+- Success feedback for actions
+
+### NFR-4: Reliability
+- Graceful error handling
+- Database connection retry
+- Form validation prevents bad data
+
+## Out of Scope
+- Task priorities
+- Task categories/tags
+- Due dates
+- Task sharing
+- Task comments
+- File attachments
