@@ -1,7 +1,5 @@
 """
 FastAPI main application
-[Task]: T-001, T-007
-[From]: speckit.plan
 """
 
 import os
@@ -13,14 +11,12 @@ from routes import tasks
 
 load_dotenv()
 
-# Create FastAPI app
 app = FastAPI(
     title="Todo API",
     description="RESTful API for todo application",
     version="2.0.0"
 )
 
-# Configure CORS
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 app.add_middleware(
@@ -31,7 +27,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
 app.include_router(tasks.router)
 
 
