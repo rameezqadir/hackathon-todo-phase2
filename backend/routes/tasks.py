@@ -6,9 +6,9 @@ from datetime import datetime
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session, select
-from database import get_session
-from models import Task, TaskCreate, TaskUpdate, TaskResponse
-from auth import verify_token
+from backend.database import get_session
+from backend.models import Task, TaskCreate, TaskUpdate, TaskResponse
+from backend.auth import verify_token
 
 router = APIRouter(prefix="/api/{user_id}/tasks", tags=["tasks"])
 
