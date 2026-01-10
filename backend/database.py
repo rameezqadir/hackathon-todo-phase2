@@ -9,10 +9,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get database URL from environment
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("postgresql://neondb_owner:npg_bwCBruq74ePN@ep-odd-poetry-a1n2do48-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
 
 if not DATABASE_URL:
-    raise ValueError("postgresql://neondb_owner:npg_bwCBruq74ePN@ep-odd-poetry-a1n2do48-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'")
+    raise ValueError("DATABASE_URL")
 
 # Create engine
 engine = create_engine(
