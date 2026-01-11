@@ -1,5 +1,3 @@
-**Content:**
-```python
 """
 Database connection and session management
 [Task]: T-003
