@@ -7,11 +7,14 @@ from routes import tasks
 
 load_dotenv()
 
+
 app = FastAPI(
     title="Todo API",
     description="RESTful API for todo application",
     version="2.0.0"
 )
+
+@app.get("/")
 
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
