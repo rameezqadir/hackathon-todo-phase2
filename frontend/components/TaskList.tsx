@@ -1,5 +1,4 @@
 'use client'
-
 import { Task } from '@/lib/types'
 import TaskItem from './TaskItem'
 
@@ -13,7 +12,7 @@ interface TaskListProps {
 export default function TaskList({ tasks, onToggle, onDelete, onUpdate }: TaskListProps) {
   if (tasks.length === 0) {
     return (
-      <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 text-center">
+      <div className="bg-white p-8 rounded-lg shadow-sm border text-center">
         <p className="text-gray-500">No tasks yet. Create your first task above!</p>
       </div>
     )
@@ -22,13 +21,7 @@ export default function TaskList({ tasks, onToggle, onDelete, onUpdate }: TaskLi
   return (
     <div className="space-y-3">
       {tasks.map((task) => (
-        <TaskItem
-          key={task.id}
-          task={task}
-          onToggle={onToggle}
-          onDelete={onDelete}
-          onUpdate={onUpdate}
-        />
+        <TaskItem key={task.id} task={task} onToggle={onToggle} onDelete={onDelete} onUpdate={onUpdate} />
       ))}
     </div>
   )

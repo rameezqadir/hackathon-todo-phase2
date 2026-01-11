@@ -1,7 +1,3 @@
-"""
-JWT authentication and verification
-"""
-
 import os
 from datetime import datetime, timedelta
 from typing import Optional
@@ -12,7 +8,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# JWT Configuration
 SECRET_KEY = os.getenv("BETTER_AUTH_SECRET")
 if not SECRET_KEY:
     raise ValueError("BETTER_AUTH_SECRET environment variable not set")
@@ -22,9 +17,6 @@ security = HTTPBearer()
 
 
 def verify_token(credentials: HTTPAuthorizationCredentials = Security(security)) -> str:
-    """
-    Verify JWT token and extract user_id.
-    """
     token = credentials.credentials
     
     try:
@@ -49,9 +41,6 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Security(security))
 
 
 def create_access_token(user_id: str, expires_delta: Optional[timedelta] = None) -> str:
-    """
-    Create JWT access token.
-    """
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:

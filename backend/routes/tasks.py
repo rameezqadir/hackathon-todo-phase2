@@ -1,14 +1,10 @@
-"""
-Task API routes
-"""
-
 from datetime import datetime
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session, select
-from backend.database import get_session
-from backend.models import Task, TaskCreate, TaskUpdate, TaskResponse
-from backend.auth import verify_token
+from database import get_session
+from models import Task, TaskCreate, TaskUpdate, TaskResponse
+from auth import verify_token
 
 router = APIRouter(prefix="/api/{user_id}/tasks", tags=["tasks"])
 
@@ -20,7 +16,6 @@ def create_task(
     session: Session = Depends(get_session),
     token_user_id: str = Depends(verify_token)
 ):
-    """Create a new task."""
     if user_id != token_user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -47,7 +42,6 @@ def get_tasks(
     session: Session = Depends(get_session),
     token_user_id: str = Depends(verify_token)
 ):
-    """Get all tasks for a user."""
     if user_id != token_user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -73,7 +67,6 @@ def get_task(
     session: Session = Depends(get_session),
     token_user_id: str = Depends(verify_token)
 ):
-    """Get a specific task by ID."""
     if user_id != token_user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -105,7 +98,6 @@ def update_task(
     session: Session = Depends(get_session),
     token_user_id: str = Depends(verify_token)
 ):
-    """Update a task."""
     if user_id != token_user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -148,7 +140,6 @@ def toggle_complete(
     session: Session = Depends(get_session),
     token_user_id: str = Depends(verify_token)
 ):
-    """Toggle task completion status."""
     if user_id != token_user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -186,7 +177,6 @@ def delete_task(
     session: Session = Depends(get_session),
     token_user_id: str = Depends(verify_token)
 ):
-    """Delete a task."""
     if user_id != token_user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

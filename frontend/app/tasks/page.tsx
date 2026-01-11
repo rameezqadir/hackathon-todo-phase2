@@ -28,13 +28,15 @@ export default function TasksPage() {
     fetchTasks(storedUserId, filter)
   }, [filter, router])
 
-  const fetchTasks = async (uid: string, status: 'all' | 'pending' | 'completed') => {
+  const fetchTasks = async (
+    uid: string,
+    status: 'all' | 'pending' | 'completed'
+  ) => {
     try {
       setLoading(true)
       const data = await taskAPI.getTasks(uid, status)
       setTasks(data)
     } catch (error) {
-      console.error('Failed to fetch tasks:', error)
       toast.error('Failed to load tasks')
     } finally {
       setLoading(false)
@@ -45,79 +47,72 @@ export default function TasksPage() {
     try {
       const newTask = await taskAPI.createTask(userId, { title, description })
       setTasks([newTask, ...tasks])
-    } catch (error) {
-      throw error
+      toast.success('Task created')
+    } catch {
+      toast.error('Failed to create task')
     }
   }
 
-  const handleToggleComplete = async (taskId: number) => {
+  const handleToggle = async (taskId: number) => {
     try {
-      const updatedTask = await taskAPI.toggleComplete(userId, taskId)
-      setTasks(tasks.map(t => t.id === taskId ? updatedTask : t))
-    } catch (error) {
+      const updated = await taskAPI.toggleComplete(userId, taskId)
+      setTasks(tasks.map(t => (t.id === taskId ? updated : t)))
+    } catch {
       toast.error('Failed to update task')
     }
   }
 
-  const handleDeleteTask = async (taskId: number) => {
+  const handleDelete = async (taskId: number) => {
     try {
       await taskAPI.deleteTask(userId, taskId)
       setTasks(tasks.filter(t => t.id !== taskId))
-    } catch (error) {
-      throw error
+      toast.success('Task deleted')
+    } catch {
+      toast.error('Failed to delete task')
     }
   }
 
-  const handleUpdateTask = async (taskId: number, title: string, description: string) => {
+  const handleUpdate = async (
+    taskId: number,
+    title: string,
+    description: string
+  ) => {
     try {
-      const updatedTask = await taskAPI.updateTask(userId, taskId, { title, description })
-      setTasks(tasks.map(t => t.id === taskId ? updatedTask : t))
-    } catch (error) {
-      throw error
+      const updated = await taskAPI.updateTask(userId, taskId, {
+        title,
+        description
+      })
+      setTasks(tasks.map(t => (t.id === taskId ? updated : t)))
+      toast.success('Task updated')
+    } catch {
+      toast.error('Failed to update task')
     }
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      
-      <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+
+      <main className="max-w-4xl mx-auto py-8 px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">My Tasks</h1>
-          <p className="text-gray-600">Manage your todo list efficiently</p>
+          <p className="text-gray-600">Manage your todo list</p>
         </div>
 
         <div className="mb-6 flex gap-2">
-          <button
-            onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-md font-medium transition ${
-              filter === 'all'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => setFilter('pending')}
-            className={`px-4 py-2 rounded-md font-medium transition ${
-              filter === 'pending'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            Pending
-          </button>
-          <button
-            onClick={() => setFilter('completed')}
-            className={`px-4 py-2 rounded-md font-medium transition ${
-              filter === 'completed'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            Completed
-          </button>
+          {(['all', 'pending', 'completed'] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-4 py-2 rounded-md font-medium ${
+                filter === f
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-700'
+              }`}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
         </div>
 
         <div className="mb-8">
@@ -127,17 +122,17 @@ export default function TasksPage() {
         {loading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="mt-2 text-gray-600">Loading tasks...</p>
           </div>
         ) : (
           <TaskList
             tasks={tasks}
-            onToggle={handleToggleComplete}
-            onDelete={handleDeleteTask}
-            onUpdate={handleUpdateTask}
+            onToggle={handleToggle}
+            onDelete={handleDelete}
+            onUpdate={handleUpdate}
           />
         )}
       </main>
     </div>
   )
 }
+

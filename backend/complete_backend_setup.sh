@@ -1,29 +1,51 @@
 #!/bin/bash
 
+echo "=========================================="
+echo "Complete Backend Setup"
+echo "=========================================="
+echo ""
+
 cd ~/projects/hackathon-todo-phase2/backend
 
-# Create routes directory
-mkdir -p routes
+# Step 1: Create virtual environment
+echo "1. Creating virtual environment..."
+python3.11 -m venv venv
+source venv/bin/activate
 
-# Create routes/__init__.py
+# Step 2: Create requirements.txt
+echo "2. Creating requirements.txt..."
+cat > requirements.txt << 'EOF'
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+sqlmodel==0.0.14
+psycopg2-binary==2.9.9
+python-jose[cryptography]==3.3.0
+python-dotenv==1.0.0
+pydantic==2.6.0
+pydantic-settings==2.1.0
+EOF
+
+# Step 3: Install dependencies
+echo "3. Installing dependencies (this may take 2-3 minutes)..."
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# Step 4: Create routes directory
+echo "4. Creating directory structure..."
+mkdir -p routes
 cat > routes/__init__.py << 'EOF'
 # Routes package
 EOF
 
-# Create models.py
+# Step 5: Create models.py
+echo "5. Creating models.py..."
 cat > models.py << 'EOF'
-"""
-Database models using SQLModel
-"""
-
 from datetime import datetime
 from typing import Optional
 from sqlmodel import Field, SQLModel
 
 
 class Task(SQLModel, table=True):
-    """Task model for database."""
-    
     __tablename__ = "tasks"
     
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -36,19 +58,16 @@ class Task(SQLModel, table=True):
 
 
 class TaskCreate(SQLModel):
-    """Schema for creating a task."""
     title: str = Field(max_length=200, min_length=1)
     description: str = Field(default="", max_length=1000)
 
 
 class TaskUpdate(SQLModel):
-    """Schema for updating a task."""
     title: Optional[str] = Field(default=None, max_length=200, min_length=1)
     description: Optional[str] = Field(default=None, max_length=1000)
 
 
 class TaskResponse(SQLModel):
-    """Schema for task response."""
     id: int
     user_id: str
     title: str
@@ -58,25 +77,20 @@ class TaskResponse(SQLModel):
     updated_at: datetime
 EOF
 
-# Create database.py
+# Step 6: Create database.py
+echo "6. Creating database.py..."
 cat > database.py << 'EOF'
-"""
-Database connection and session management
-"""
-
 import os
 from sqlmodel import create_engine, SQLModel, Session
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Get database URL from environment
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL environment variable not set")
 
-# Create engine
 engine = create_engine(
     DATABASE_URL,
     echo=True,
@@ -85,22 +99,17 @@ engine = create_engine(
 
 
 def create_db_and_tables():
-    """Create all tables in the database."""
     SQLModel.metadata.create_all(engine)
 
 
 def get_session():
-    """Get database session."""
     with Session(engine) as session:
         yield session
 EOF
 
-# Create auth.py
+# Step 7: Create auth.py
+echo "7. Creating auth.py..."
 cat > auth.py << 'EOF'
-"""
-JWT authentication and verification
-"""
-
 import os
 from datetime import datetime, timedelta
 from typing import Optional
@@ -111,7 +120,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# JWT Configuration
 SECRET_KEY = os.getenv("BETTER_AUTH_SECRET")
 if not SECRET_KEY:
     raise ValueError("BETTER_AUTH_SECRET environment variable not set")
@@ -121,9 +129,6 @@ security = HTTPBearer()
 
 
 def verify_token(credentials: HTTPAuthorizationCredentials = Security(security)) -> str:
-    """
-    Verify JWT token and extract user_id.
-    """
     token = credentials.credentials
     
     try:
@@ -148,9 +153,6 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Security(security))
 
 
 def create_access_token(user_id: str, expires_delta: Optional[timedelta] = None) -> str:
-    """
-    Create JWT access token.
-    """
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
@@ -162,12 +164,9 @@ def create_access_token(user_id: str, expires_delta: Optional[timedelta] = None)
     return encoded_jwt
 EOF
 
-# Create routes/tasks.py
+# Step 8: Create routes/tasks.py
+echo "8. Creating routes/tasks.py..."
 cat > routes/tasks.py << 'EOF'
-"""
-Task API routes
-"""
-
 from datetime import datetime
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -186,7 +185,6 @@ def create_task(
     session: Session = Depends(get_session),
     token_user_id: str = Depends(verify_token)
 ):
-    """Create a new task."""
     if user_id != token_user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -213,7 +211,6 @@ def get_tasks(
     session: Session = Depends(get_session),
     token_user_id: str = Depends(verify_token)
 ):
-    """Get all tasks for a user."""
     if user_id != token_user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -239,7 +236,6 @@ def get_task(
     session: Session = Depends(get_session),
     token_user_id: str = Depends(verify_token)
 ):
-    """Get a specific task by ID."""
     if user_id != token_user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -271,7 +267,6 @@ def update_task(
     session: Session = Depends(get_session),
     token_user_id: str = Depends(verify_token)
 ):
-    """Update a task."""
     if user_id != token_user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -314,7 +309,6 @@ def toggle_complete(
     session: Session = Depends(get_session),
     token_user_id: str = Depends(verify_token)
 ):
-    """Toggle task completion status."""
     if user_id != token_user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -352,7 +346,6 @@ def delete_task(
     session: Session = Depends(get_session),
     token_user_id: str = Depends(verify_token)
 ):
-    """Delete a task."""
     if user_id != token_user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -379,12 +372,9 @@ def delete_task(
     return None
 EOF
 
-# Create main.py
+# Step 9: Create main.py
+echo "9. Creating main.py..."
 cat > main.py << 'EOF'
-"""
-FastAPI main application
-"""
-
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -404,7 +394,7 @@ frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[frontend_url, "https://*.vercel.app"],
+    allow_origins=["http://localhost:3000", "https://*.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -415,13 +405,11 @@ app.include_router(tasks.router)
 
 @app.on_event("startup")
 def on_startup():
-    """Create database tables on startup."""
     create_db_and_tables()
 
 
 @app.get("/")
 def read_root():
-    """Health check endpoint."""
     return {
         "status": "healthy",
         "message": "Todo API is running",
@@ -431,13 +419,27 @@ def read_root():
 
 @app.get("/health")
 def health_check():
-    """Health check for deployment platforms."""
     return {"status": "ok"}
 EOF
 
-echo "✅ All backend files created successfully!"
+# Step 10: Create .env file
+echo "10. Creating .env file..."
+cat > .env << 'EOF'
+DATABASE_URL=postgresql://username:password@host/database?sslmode=require
+BETTER_AUTH_SECRET=my-super-secret-key-change-this-to-random-32-characters
+FRONTEND_URL=http://localhost:3000
+EOF
+
+echo ""
+echo "=========================================="
+echo "✅ Backend setup complete!"
+echo "=========================================="
+echo ""
+echo "⚠️  IMPORTANT: Edit .env file with your Neon database URL"
 echo ""
 echo "Next steps:"
-echo "1. Make sure .env file exists with correct values"
-echo "2. Run: uvicorn main:app --reload --port 8000"
+echo "1. nano .env  (update DATABASE_URL with your Neon connection string)"
+echo "2. source venv/bin/activate"
+echo "3. uvicorn main:app --reload --port 8000"
+echo ""
 
