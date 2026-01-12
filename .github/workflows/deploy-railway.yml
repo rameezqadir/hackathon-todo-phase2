@@ -1,0 +1,28 @@
+name: hackathon-todo-phase2
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'requirements.txt'
+      - 'railway.json'
+      - 'runtime.txt'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Railway
+        uses: railway/action@v1.0.4
+        with:
+          railway-token: ${{ secrets.RAILWAY_TOKEN }}
+          service: hackathon-todo-phase2
+          environment: production
+          
+      - name: Health Check
+        run: |
+          sleep 10
+          curl -f https://hackathon-todo-phase2-production.up.railway.app/health || echo "Health check failed"
