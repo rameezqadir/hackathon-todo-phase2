@@ -14,7 +14,7 @@ app = FastAPI(
     version="2.0.0"
 )
 
-@app.get("/")
+
 
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
